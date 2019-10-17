@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="myApp" ng-controller="formCtrl">
+<head>
+	<meta charsest="UTF-8">
+	<title>Registration Form</title>
+	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.7.8/angular.min.js"></script>
+	<style>
+* {
+  box-sizing: border-box;
+}
+.column {
+  float: left;
+  width: 50%;
+  padding: 10px;
+  height: 300px; 
+}
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+</style>
+</head>
+<body>
+	<div class="row">
+		<div class="column">
+	<form name="MyForm" novalidate="">
+		Name:<br>
+		<input type="text" name="name" ng-model="name" ng-required="true">
+		<span ng-show="MyForm.name.$touched && MyForm.name.$error.required"><font color="red">Name required</font></span><br><br>
+		Subject:<br>
+		<input type="text" name="subject" ng-model="subject" ng-required="true">
+		<span ng-show="MyForm.subject.$touched && MyForm.subject.$error.required"><font color="red">Subject required</font></span><br><br>
+		MARKS:<br><br>
+		TEST 1:
+		<input type="text" name="t1" ng-model="m1"><br><br>
+		TEST 2:
+		<input type="text" name="t2" ng-model="m2"><br><br>
+		TEST 3:
+		<input type="text" name="t3" ng-model="m3"><br><br>
+		<input type="button" value="Submit" ng-click="done()">
+	</form><br><br>
+</div>
+<div class="column" ng-init="displayData()">
+	SEARCH: 
+	<input type="text" ng-model="search.Name" ng-change="filter()" placeholder="search"><br><br>
+	<table border="1" >
+		<tr>
+			<th>Name</th>
+			<th>Subject</th>
+			<th>Marks1</th>
+			<th>Marks2</th>
+			<th>Marks3</th>
+		</tr>
+		<tr ng-repeat="x in names | filter:search:strict | orderBy: base">
+			<td>{{x.Name}}</td>
+			<td>{{x.Subject}}</td>
+			<td>{{x.Test1}}</td>
+			<td>{{x.Test2}}</td>
+			<td>{{x.Test3}}</td>
+		</tr>
+	</table><br>
+	<button value="sort" ng-click="sort_with('Name')">SORT</button>
+</div>
+</div>
+	<script>
+		var app=angular.module('myApp',[]);
+		app.controller('formCtrl',function($scope,$http){
+			$scope.done=function(){
+				$http.post("insert.php",{
+					'name':$scope.name,
+					'subject':$scope.subject,
+					'm1':$scope.m1,
+					'm2':$scope.m2,
+					'm3':$scope.m3
+				}).then(function(response){
+					console.log("data inserted");
+					$scope.name=null;
+					$scope.subject=null;
+					$scope.m1=null;
+					$scope.m2=null;
+					$scope.m3=null;
+					$scope.displayData();
+				});
+			}
+			$scope.displayData=function(){
+				$http.get("show.php")
+				.then(function(response){
+					$scope.names=response.data;
+				});
+			}
+			$scope.sort_with = function(base){
+				$scope.base = base;
+				/*$scope.reverse = !$scope.reverse;*/
+			};
+		});
+	</script>
+</body>
+</html>
